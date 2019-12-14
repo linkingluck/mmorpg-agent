@@ -12,24 +12,23 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.Date;
-import java.util.logging.FileHandler;
 
 /**
  * Created by lingkingluck
  */
 public class HotUpdateWatch {
 
-    public static final String JAR_PATH = "mmorpg-agent.jar";
+    private static final String JAR_PATH = "mmorpg-agent-1.0-SNAPSHOT.jar";
     private String hotUpdateAgentJarPath;
 
-    public static void watch(String scriptDirPath) throws Exception {
-        File file = new File(JAR_PATH);
-        if (!file.exists()) {
-            throw new RuntimeException("not have hotupdtae agent");
+    public static void watch(String libDirPath, String scriptDirPath) throws Exception {
+        File hotUpdateJarfile = new File(libDirPath + File.separator + JAR_PATH);
+        if (!hotUpdateJarfile.exists()) {
+            throw new RuntimeException("not have hotUpdate agent in path:" + libDirPath);
         }
 
         HotUpdateWatch watch = new HotUpdateWatch();
-        watch.hotUpdateAgentJarPath = file.getAbsolutePath();
+        watch.hotUpdateAgentJarPath = hotUpdateJarfile.getAbsolutePath();
         watch.startWatch(scriptDirPath);
     }
 
@@ -43,14 +42,14 @@ public class HotUpdateWatch {
         observer.addListener(new FileAlterationListenerAdaptor() {
             @Override
             public void onFileCreate(File file) {
-                System.err.println(new Date() + " onFileCreate" + file.getName());
+                System.err.println(new Date() + " onFileCreate " + file.getName());
 
                 updateClass(file);
             }
 
             @Override
             public void onFileChange(File file) {
-                System.err.println(new Date() + " onFileChange" + file.getName());
+                System.err.println(new Date() + " onFileChange " + file.getName());
 
                 updateClass(file);
             }
@@ -60,7 +59,7 @@ public class HotUpdateWatch {
         monitor.addObserver(observer);
         monitor.start();
 
-        System.out.println("hotupdata watch dir:" + scriptDirPath);
+        System.out.println("hotUpdate watch dir:" + scriptDirPath);
     }
 
     private void updateClass(File file) {
